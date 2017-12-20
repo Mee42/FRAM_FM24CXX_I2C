@@ -67,25 +67,25 @@
 
 
 #define MAXADDRESS_04 512
-#define MAXADDRESS_16 2048
-#define MAXADDRESS_64 8192
+//#define MAXADDRESS_16 2048
+//#define MAXADDRESS_64 8192
 
 
 // Adresses
-#define FM24CXX_ADDRESS_A000   0x50
-#define FM24CXX_ADDRESS_A001   0x51
-#define FM24CXX_ADDRESS_A010   0x52
-#define FM24CXX_ADDRESS_A011   0x53
-#define FM24CXX_ADDRESS_A100   0x54
-#define FM24CXX_ADDRESS_A101   0x55
-#define FM24CXX_ADDRESS_A110   0x56
-#define FM24CXX_ADDRESS_A111   0x57
-#define FM24CXX_DEFAULT_ADDRESS   FM24CXX_ADDRESS_A000
+//#define FM24CXX_ADDRESS_A000   0x50
+//#define FM24CXX_ADDRESS_A001   0x51
+//#define FM24CXX_ADDRESS_A010   0x52
+//#define FM24CXX_ADDRESS_A011   0x53
+//#define FM24CXX_ADDRESS_A100   0x54
+//#define FM24CXX_ADDRESS_A101   0x55
+//#define FM24CXX_ADDRESS_A110   0x56
+//#define FM24CXX_ADDRESS_A111   0x57
+//#define FM24CXX_DEFAULT_ADDRESS   FM24CXX_ADDRESS_A000
 
 //Special commands
-#define MASTER_CODE	0xF8
-#define SLEEP_MODE	0x86 //Cypress codes, not used here	
-#define HIGH_SPEED	0x08 //Cypress codes, not used here
+//#define MASTER_CODE	0xF8
+//#define SLEEP_MODE	0x86 //Cypress codes, not used here	
+//#define HIGH_SPEED	0x08 //Cypress codes, not used here
 
 // Managing Write protect pin
 #define MANAGE_WP false //false if WP pin remains not connected
@@ -132,8 +132,6 @@ class FRAM_FM24CXX_I2C {
   
  private:
 	uint8_t	i2c_addr;
-	uint16_t	maxaddress;
-
 	int	wpPin;
 	boolean	wpStatus;
 

@@ -33,20 +33,8 @@
     Constructor
 */
 /**************************************************************************/
-FRAM_FM24CXX_I2C::FRAM_FM24CXX_I2C(uint8_t address, boolean wp, int pin, uint16_t chipDensity) 
-{		
-		switch(chipDensity) {
-			case 4:
-				maxaddress = MAXADDRESS_04;
-				break;
-			case 16:
-				maxaddress = MAXADDRESS_16;
-				break;
-			case 64:
-				maxaddress = MAXADDRESS_64;
-				break;
-		}
-		i2c_addr = address;
+FRAM_FM24CXX_I2C::FRAM_FM24CXX_I2C(uint8_t i2c_addr, boolean wp, int pin, uint16_t chipDensity) 
+{		i2c_addr = address;
 		wpPin = pin;
 		byte result = FRAM_FM24CXX_I2C::initWP(wp);
 }
@@ -99,8 +87,16 @@ void FRAM_FM24CXX_I2C::begin(void) {
 /**************************************************************************/
 byte FRAM_FM24CXX_I2C::writeArray (uint16_t framAddr, byte items, uint8_t values[])
 {
-	if ((framAddr >= maxaddress) || ((framAddr + (uint16_t) items - 1) >= maxaddress)) return ERROR_11;
-	FRAM_FM24CXX_I2C::I2CAddressAdapt(framAddr);
+	if ((framAddr >= MAXADDRESS_04) || ((framAddr + (uint16_t) items - 1) >= MAXADDRESS_04)) return ERROR_11;
+	//FRAM_FM24CXX_I2C::I2CAddressAdapt(framAddr);
+	#if defined(SERIAL_DEBUG) && (SERIAL_DEBUG == 1)
+		Serial.print("Calculated address 0x");
+		Serial.println((i2c_addr | ((framAddr >> 8) & 0x1)), HEX);
+	#endif
+	Wire.beginTransmission(i2c_addr | ((framAddr >> 8) & 0x1));
+	Wire.write(framAddr & 0xFF);
+	
+	
 	for (byte i=0; i < items ; i++) {
 		Wire.write(values[i]);
 	}
@@ -148,13 +144,22 @@ byte FRAM_FM24CXX_I2C::writeByte (uint16_t framAddr, uint8_t value)
 /**************************************************************************/
 byte FRAM_FM24CXX_I2C::readArray (uint16_t framAddr, byte items, uint8_t values[])
 {
-	if ((framAddr >= maxaddress) || ((framAddr + (uint16_t) items - 1) >= maxaddress)) return ERROR_11;
+	if ((framAddr >= MAXADDRESS_04) || ((framAddr + (uint16_t) items - 1) >= MAXADDRESS_04)) return ERROR_11;
 	byte result;
 	if (items == 0) {
 		result = ERROR_8; //number of bytes asked to read null
 	}
 	else {
-		FRAM_FM24CXX_I2C::I2CAddressAdapt(framAddr);
+		
+		#if defined(SERIAL_DEBUG) && (SERIAL_DEBUG == 1)
+		Serial.print("Calculated address 0x");
+		Serial.println((i2c_addr | ((framAddr >> 8) & 0x1)), HEX);
+		#endif
+		Wire.beginTransmission(i2c_addr | ((framAddr >> 8) & 0x1));
+		Wire.write(framAddr & 0xFF);
+		
+		
+		//FRAM_FM24CXX_I2C::I2CAddressAdapt(framAddr);
 		result = Wire.endTransmission();
 		
 		Wire.requestFrom(i2c_addr, (uint8_t)items);
@@ -504,7 +509,7 @@ byte FRAM_FM24CXX_I2C::eraseDevice(void) {
 			}
 		#endif
 		
-		while((i < maxaddress) && (result == 0)){
+		while((i < MAXADDRESS_04) && (result == 0)){
 		  result = FRAM_FM24CXX_I2C::writeByte(i, 0x00);
 		  i++;
 		}
@@ -566,27 +571,3 @@ byte FRAM_FM24CXX_I2C::initWP(boolean wp) {
 	return result;
 }
 
-/**************************************************************************/
-/*!
-    @brief 	Adapts the I2C calls (chip address + memory pointer) according to chip datasheet
-			4K chips : 1 MSB of memory address as LSB of device address + 8 bits memory address
-			16K chips : 3 MSB of memory address as LSB of device address + 8 bits memory address
-			64K and more chips : full chipp address & 16 bits memory address
-			
-
-    @params[in]  address : memory address
-	@param[out]	 none
-	@returns	 void
-*/
-/**************************************************************************/
-void FRAM_FM24CXX_I2C::I2CAddressAdapt(uint16_t framAddr) {
-	uint8_t chipaddress;
-	chipaddress = (i2c_addr | ((framAddr >> 8) & 0x1));
-		#if defined(SERIAL_DEBUG) && (SERIAL_DEBUG == 1)
-		Serial.print("Calculated address 0x");
-		Serial.println(chipaddress, HEX);
-	#endif
-	Wire.beginTransmission(chipaddress);
-	Wire.write(framAddr & 0xFF);
-	return;
-}
