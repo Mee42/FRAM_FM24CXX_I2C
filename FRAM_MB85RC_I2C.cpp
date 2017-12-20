@@ -223,7 +223,7 @@ byte FRAM_MB85RC_I2C::readArray (uint16_t framAddr, byte items, uint8_t values[]
 		FRAM_MB85RC_I2C::I2CAddressAdapt(framAddr);
 		result = Wire.endTransmission();
 		
-		Wire.requestFrom(i2c_addr, (uint8_t)items);
+		Wire.requestFrom(chipaddress, (uint8_t)items);
 		for (byte i=0; i < items; i++) {
 			values[i] = Wire.read();
 		}
@@ -888,7 +888,7 @@ byte FRAM_MB85RC_I2C::initWP(boolean wp) {
 /**************************************************************************/
 void FRAM_MB85RC_I2C::I2CAddressAdapt(uint16_t framAddr) {
 	
-	uint8_t chipaddress;
+	//uint16_t chipaddress;
 	
 	switch(density) {
 		case 4:
@@ -907,14 +907,54 @@ void FRAM_MB85RC_I2C::I2CAddressAdapt(uint16_t framAddr) {
 		Serial.println(chipaddress, HEX);
 	#endif
 	
+		
 	if (density < 64) {
 		Wire.beginTransmission(chipaddress);
 		Wire.write(framAddr & 0xFF);
-	}
+				}
 	else {
 		Wire.beginTransmission(chipaddress);
 		Wire.write(framAddr >> 8);
 		Wire.write(framAddr & 0xFF);	
 	}
 	return;
+}
+
+
+/**************************************************************************/
+/*!
+    @brief  Read a 32bits value from the specified FRAM address
+
+    @params[in] framAddr
+                The 16-bit address to read from FRAM memory
+	@params[in] value
+				32bits word
+    @returns    
+				return code of Wire.endTransmission()
+*/
+/**************************************************************************/
+byte FRAM_MB85RC_I2C::readFloat(uint16_t framAddr, float *value)
+{
+	uint8_t buffer[4];
+	byte result = FRAM_MB85RC_I2C::readArray(framAddr, 4, buffer);
+	*value = *reinterpret_cast<float *>(buffer);
+	return result;
+
+}
+/**************************************************************************/
+/*!
+    @brief  Write a 32bits value to the specified FRAM address
+
+    @params[in] framAddr
+                The 16-bit address to write to FRAM memory
+	@params[in] value
+				32bits word
+    @returns    
+				return code of Wire.endTransmission()
+*/
+/**************************************************************************/
+byte FRAM_MB85RC_I2C::writeFloat(uint16_t framAddr, float value)
+{
+	uint8_t *buffer = reinterpret_cast<uint8_t *>(&value);
+	return FRAM_MB85RC_I2C::writeArray(framAddr, 4, buffer);
 }

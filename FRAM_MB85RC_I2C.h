@@ -150,6 +150,8 @@ class FRAM_MB85RC_I2C {
 	byte	readWord(uint16_t framAddr, uint16_t *value);
 	byte	writeWord(uint16_t framAddr, uint16_t value);
 	byte	readLong(uint16_t framAddr, uint32_t *value);
+	byte	readFloat(uint16_t framAddr, float *value);
+	byte	writeFloat(uint16_t framAddr, float value);
 	byte	writeLong(uint16_t framAddr, uint32_t value);
 	byte	getOneDeviceID(uint8_t idType, uint16_t *id);
 	boolean	isReady(void);
@@ -162,6 +164,7 @@ class FRAM_MB85RC_I2C {
 	uint8_t	i2c_addr;
 	boolean	_framInitialised;
 	boolean	_manualMode;
+	uint16_t chipaddress;
 	uint16_t	manufacturer;
 	uint16_t	productid; 
 	uint16_t	densitycode;
