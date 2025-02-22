@@ -34,7 +34,7 @@
 */
 /**************************************************************************/
 FRAM_FM24CXX_I2C::FRAM_FM24CXX_I2C(uint8_t i2c_addr, boolean wp, int pin, uint16_t chipDensity) 
-{		i2c_addr = address;
+{		i2c_addr = i2c_addr;
 		wpPin = pin;
 		byte result = FRAM_FM24CXX_I2C::initWP(wp);
 }
